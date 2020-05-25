@@ -5,6 +5,11 @@
 #define EQM_ACCETTABILE 0.05
 #define ITERAZIONI 100.
 
+/*
+  COMPILAZIONE
+  gcc -o tre_strati_a tre_strati_a.c -I../lib/include ../lib/librele.o -lm
+ */
+
 int main()
 {
   rele_rete * r =  rele_Crea_rete( 2,1,30,5);
@@ -26,7 +31,7 @@ int main()
 	   d[0]=4.*(double)rand()/(double)RAND_MAX-2;
 	   d[1]=5*(double)rand()/(double)RAND_MAX;
 	   c[0]=0;
-	  /* il punto è classificato come 0 se giace sotto la bisettrice */
+	  /* il punto è classificato come 0 se giace stra le due parabole */
 	   if((-d[0]*d[0]+4 > d[1]) && (-d[0]*d[0]+2 < d[1])) c[0] = 1 ;
 	  /* addestra la rete passando le coordinate del punto e il target
 	     output, cioè la label della classe di appartenenza */

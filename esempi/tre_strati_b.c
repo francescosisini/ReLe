@@ -5,6 +5,12 @@
 #define EQM_ACCETTABILE 0.05
 #define ITERAZIONI 100.
 
+
+/*
+  COMPILAZIONE
+  gcc -o tre_strati_b tre_strati_b.c -I../lib/include ../lib/librele.o -lm
+ */
+
 int main()
 {
   rele_rete * r =  rele_Crea_rete(2,1,20,20);
@@ -37,16 +43,6 @@ int main()
   /* Termina quando l'errore quadratico, mediato su 100 iterazioni è soddisfacente */
   while(eqm>EQM_ACCETTABILE);
 
-  FILE * f= fopen("myn.csv","wt");
-  rele_Salva(r,f);
-  fclose(f);
-
-  f= fopen("myn.csv","rt");
-  rele_rete * rn = rele_Apri(f);
-  fclose(f);
-  f= fopen("myn2.csv","wt");
-  rele_Salva(r,f);
-  printf("STA CAZZO DI RETE HA: %d neuroni di merda\n",rn->N_neuroni_sensitivi);
   printf("Terminato in %d iterazioni\n",iterazioni);
   for(int i=0;i<1000;i++)
     {

@@ -5,6 +5,11 @@
 #define EQM_ACCETTABILE 0.01
 #define ITERAZIONI 100.
 
+/*
+  COMPILAZIONE
+  gcc -o uno_strato uno_strato.c -I../lib/include ../lib/librele.o -lm
+ */
+
 int main()
 {
   rele_rete * r =  rele_Crea_rete(2,1,0,0);
