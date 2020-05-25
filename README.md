@@ -6,3 +6,7 @@ Libreria didattica per la creazione, addestramento e test di reti neurali fino a
 - Addestramento con Backpropagation
 - Facile da usare: bastano 3 chiamate per creare, addestare e provare una rete
 - Multipiattaforma
+
+## Installazione
+Per prima cosa si clona il repositir
+`git clone https://github.com/francescosisini/ReLe.git`
