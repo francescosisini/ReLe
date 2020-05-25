@@ -14,7 +14,7 @@ Libreria didattica per la creazione, addestramento e test di reti neurali fino a
 - Multipiattaforma
 
 ## Installazione
-Per prima cosa si clona il repository
+Clonare il repository
 
 `git clone https://github.com/francescosisini/ReLe.git`
 
