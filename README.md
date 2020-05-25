@@ -16,4 +16,7 @@ Cambiare la directory in `Rele` per esempio dalla cartella di clone: `cd Rele`
 
 Lanciare `make`
 
+## Test
+Per testare la libreria e provare ad usarla nelle proprie applicazioni guardare gli esempi della cartella [test](test)
+
 
