@@ -1,6 +1,7 @@
 # ReLe
 Libreria didattica per la creazione, addestramento e test di reti neurali fino a tre strati in linguaggio C
-## Sponsor [Introduzione alle reti neurali: con esempi in linguaggio C](https://www.amazon.it/Introduzione-alle-neurali-esempi-linguaggio/dp/1692945319)
+#### Sponsor 
+[Introduzione alle reti neurali: con esempi in linguaggio C](https://www.amazon.it/Introduzione-alle-neurali-esempi-linguaggio/dp/1692945319)
 
 ## Caratteristiche di ReLe
 - Rete neurale mulistrato (completamente connessa) in linguaggio C
