@@ -1,0 +1,2 @@
+ESEMPIO:
+gcc -o uno_strato uno_strato.c -I../lib/include ../lib/librele.o -lm
