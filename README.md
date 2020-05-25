@@ -8,5 +8,12 @@ Libreria didattica per la creazione, addestramento e test di reti neurali fino a
 - Multipiattaforma
 
 ## Installazione
-Per prima cosa si clona il repositir
+Per prima cosa si clona il repository
+
 `git clone https://github.com/francescosisini/ReLe.git`
+
+Cambiare la directory in `Rele` per esempio dalla cartella di clone: `cd Rele`
+
+Lanciare `make`
+
+
