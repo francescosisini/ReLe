@@ -18,7 +18,7 @@ Clonare il repository
 
 `git clone https://github.com/francescosisini/ReLe.git`
 
-Cambiare la directory in `Rele` per esempio dalla cartella di clone: `cd Rele`
+Entrare nella directory  `ReLe` dalla directory di clone: `cd ReLe`
 
 Lanciare `make`
 
