@@ -4,7 +4,7 @@ Libreria didattica per la creazione, addestramento e test di reti neurali fino a
 [Introduzione alle reti neurali: con esempi in linguaggio C](https://www.amazon.it/Introduzione-alle-neurali-esempi-linguaggio/dp/1692945319)
 
 ## Caratteristiche di ReLe
-- Rete neurale mulistrato (completamente connessa) in linguaggio C
+- **Re**te neura**Le** mulistrato (completamente connessa) in linguaggio C
 - Addestramento con Backpropagation
 - Facile da usare: bastano 3 chiamate per creare, addestare e provare una rete
 - Possibilità di salvare la rete in formato CSV (Tabulazioni al posto delle virgole TSV)
