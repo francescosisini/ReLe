@@ -24,5 +24,6 @@ Lanciare `make`
 
 ## Esempi d'uso
 Per testare la libreria e provare ad usarla nelle proprie applicazioni guardare gli esempi della cartella [esempi](esempi)
-
+##
+Sponsor [Introduzione alle reti neurali: con esempi in linguaggio C] (https://www.amazon.it/Introduzione-alle-neurali-esempi-linguaggio/dp/1692945319)
 
