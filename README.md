@@ -11,7 +11,7 @@ Libreria didattica per la creazione, addestramento e test di reti neurali fino a
 - Caricare una rete da file con una sola chiamata
 - Analizzare la struttura delle connessioni con Calc (o Excel) o con un editor di testo
 - Modificare i pesi delle connessioni manualmente per vedere gli effetti
-- Valutare l'errore quadratico della rete per sapere quando completere l'addestramento
+- Valutare l'errore quadratico della rete per sapere quando completare l'addestramento
 
 - Multipiattaforma
 
