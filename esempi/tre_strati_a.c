@@ -1,4 +1,4 @@
-#include "rele_libreteneurale.h"
+#include "librele.h"
 #include <stdio.h>
 #include <stdlib.h>
 

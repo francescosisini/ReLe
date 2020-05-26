@@ -1,9 +1,0 @@
-  FILE * f= fopen("myn.csv","wt");
-  rele_Salva(r,f);
-  fclose(f);
-
-  f= fopen("myn.csv","rt");
-  rele_rete * rn = rele_Apri(f);
-  fclose(f);
-  f= fopen("myn2.csv","wt");
-  rele_Salva(r,f);
