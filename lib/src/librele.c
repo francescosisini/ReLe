@@ -25,6 +25,7 @@
 #include <math.h>
 #include <string.h>
 #include "librele.h"
+#include "libcallidus.h"
 #define MAX_PESO 0.1
 #define MIN_PESO -0.1
 
@@ -32,6 +33,18 @@
    INTERFACCIA:
    SEZIONI FUNZIONI PUBBLICHE
 **/
+
+rele_dato rele_callidus(int cod_servizio, int etichettato)
+{
+  rele_dato d;
+
+  char * p = callidus_GET(cod_servizio);
+  d.etichetta = 1;
+  d.dato = p;
+  d.nelementi = 12;
+  return d;
+  
+}
 
 rele_rete * rele_Apri(FILE * f)
 {

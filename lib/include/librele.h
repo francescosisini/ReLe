@@ -5,6 +5,21 @@
  */
 #include <stdio.h>
 
+
+
+typedef struct
+{
+  /** etichetta della classe (-1 -> no etichetta)*/
+  int etichetta;
+
+  /** array dati */
+  void * dato;
+  /** numero elementi array */
+  int nelementi;
+  
+
+} rele_dato;
+
 typedef struct
 {
   /** Interfacciamento */
@@ -77,6 +92,10 @@ typedef struct
   int campioni;
 }rele_parametri;
 
+/*
+  Riceve un dato da un servizio di Callidus
+ */
+rele_dato rele_callidus(int cod_servizio, int etichettato);
 
 /* crea una rete neurale che può essere addestrata.
    Inizializza i pesi dendritici (pesi delle connessioni)

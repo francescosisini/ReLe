@@ -1,0 +1,1 @@
+char * callidus_GET(char* messaggio);
