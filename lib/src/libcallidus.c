@@ -125,3 +125,119 @@ char * callidus_GET(int cod_servizio)
    
    return mr;
 }
+
+/** Gestione dati*/
+
+int db_inserisci_immobile(Immobile *im)
+{
+  int chiave = 1;
+  int err;
+  FILE * f = fopen("Immobile.db","a+b");
+  //Mi sposto in fondo al file
+  int s;
+  s = fseek(f,-sizeof(Immobile),SEEK_END);
+  
+  printf("###%d\n",s);
+  
+  fflush(stdout);
+  if(s<=-1)
+    {
+      im->id = chiave;
+    }
+  else
+    {
+      Immobile r;
+      fread(&r,sizeof(Immobile),1,f);
+      chiave = r.id+1;
+      im->id = chiave;
+    }
+
+  err = fwrite(im,sizeof(Immobile),1,f);
+  
+  if(err<=0)
+    {
+      printf("###%d\n",s);
+      printf("db: errori inserimento\n");
+      exit(1);
+    }
+  
+  fclose(f);
+  return chiave;
+  
+}
+
+int db_aggiorna_immobile(Immobile c)
+{
+  int s;
+  Immobile t;
+  FILE * f = fopen("Immobile.db","r+b");
+  char trovato = 0;
+  printf("Aggiorno per id = %d\n",c.id);
+  /* cerca il record */
+  do
+    {
+      s = fread(&t,sizeof(Immobile),1,f);
+      if(s<=0)
+	{
+	  fclose(f);
+	  return -1;
+	}
+      printf("Letto %d\n",t.id);
+      if(t.id == c.id) trovato = 1;
+      
+    }while(!trovato);
+  
+  /* si posiziona sul record */
+  s = fseek(f,-sizeof(Immobile),SEEK_CUR);
+
+  int err = fwrite(&c,sizeof(Immobile),1,f);
+
+  fclose(f);
+
+  if(err<=1) return err;
+
+  return c.id;
+}
+
+int  db_seleziona_immobile(Immobile * t, Immobile c, int chiave)
+{
+  int s;
+  FILE * f = fopen("Immobile.db","r+b");
+  char trovato = 0;
+  
+  do
+    {
+     s = fread(t,sizeof(Immobile),1,f);
+     if(s<=0)
+       {
+	 fclose(f);
+	 return -1;
+       }
+     if(t->id>chiave &&
+	(c.area == t->area || c.area == -1) &&
+	(c.piani == t->piani || c.piani == -1) &&
+	(c.bagni == t->bagni || c.bagni == -1) &&
+	(c.giardino == t->giardino || c.giardino == -1) &&
+	(c.distanza_centro == t->distanza_centro || c.distanza_centro == -1) &&
+	(c.vani == t->vani || c.vani == -1) &&
+	(c.tipo_r == t->tipo_r || c.tipo_r == -1) &&
+	(c.lati_indipendenti == t->lati_indipendenti || c.lati_indipendenti ==-1)
+	) trovato = 1;
+     
+    }while(!trovato);
+  fclose(f);
+  return t->id;
+
+}
+
+void db_inizializza_immobile(Immobile *im)
+{
+  im->area = -1;
+  im->piani = -1;
+  im->bagni = -1;
+  im->giardino = -1;
+  im->distanza_centro = -1;
+  im->vani = -1;
+  im->tipo_r = -1;
+  im->lati_indipendenti = -1;
+}
