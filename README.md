@@ -27,6 +27,6 @@ Lanciare `make`
 ## Esempi d'uso
 Per testare la libreria e provare ad usarla nelle proprie applicazioni guardare gli esempi della cartella [esempi](esempi)
 ## Modello
-Il codice di `ReLe` è coerente al modello presentato nella figura [Modello ReLe](img/)
+Il codice di `ReLe` è coerente al modello presentato nella figura [Modello ReLe](img/MLP_detailed_3S.png)
 
 
