@@ -1,0 +1,1 @@
+Immagini del modello
