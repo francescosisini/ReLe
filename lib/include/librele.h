@@ -152,3 +152,73 @@ double Dactiv_function(double summed_input);
 
 /* Calcola e aggiorna l'EQM in base all'ultimo EQ e il numeto di iterazioni eseguite */
 void aggiorna_EQM(rele_rete * rn);
+
+
+/*** AG ***/
+
+typedef double allele;
+
+/*
+ * Contiene le informazioni sulla struttura dei cromosomi
+ */
+typedef struct
+{
+  int N_geni;
+
+  double score;
+
+  double idoneita;
+  
+  /*Il buffer gene viene creato di dimensione N_geni dalla rele_Crea_croma() */
+  allele * gene;
+  
+} rele_croma;
+
+/*  
+ * Torna un array di rele_croma, quindi una popolazione di cromosomi
+ */
+rele_croma * rele_AG_Crea_cromosomi(rele_rete * modello, int numero);
+void rele_AG_Libera_cromosomi(rele_croma * c, int numero);
+
+/*
+ * Calcola l'ideoneità di ogni cromosoma della popolazione
+ * e la memorizza nel campo ideoneità del cromosoma stesso
+ */
+void rele_AG_Calcola_idoneita(rele_croma * cromosomi,
+			   int numero,
+			   rele_rete * modello,
+			   double * dati,
+			   double * classi);
+
+/*
+ * Calcola uno score random (con funzione generatrice piatta) per 
+ * ogni cromosoma.
+ * Restituisce l'indice del cromosoma che risulta avere 
+ * il prodotto score*idoneità più elevato
+ */
+int rele_AG_selezione(rele_croma * cromosomi, int escluso);
+
+/*
+ * Valorizza i geni di figlio_1 e _2 con il risultato
+ * dell'incrcio dei cromosomi genitore 1 e 2
+ */
+void rele_AG_incrocia(rele_croma genitore_1,
+		      rele_croma genitore_2,
+		      rele_croma * figlio_1,
+		      rele_croma * figlio_2);
+
+/*
+ * Muta ogni gene della cromosoma con probabilità p fino al massimo di +-x
+ */
+void rele_AG_muta(rele_croma * cromosoma, double p, double x);
+
+/*
+ * Valorizza i pesi delle sinapsi della rete r con i valor dei geni 
+ * del cromosoma 
+ */
+void rele_AG_trascrivi_sinapsi(rele_croma  cromosama, rele_rete * r);
+
+
+
+
+
