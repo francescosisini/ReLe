@@ -33,6 +33,40 @@
    SEZIONI FUNZIONI PUBBLICHE
 **/
 
+rele_croma * rele_AG_Crea_cromosomi(rele_rete * modello, int n)
+{
+  /* calcola il numero di geni dei cromosomi che è pari al numero di sinapsi */
+  int n_geni;
+  rele_rete * rn = modello;//nome più comodo
+  if(rn->N_strati_computazionali >= 1)
+    {
+      n_geni = (rn->l1_nd+1)*(rn->l1_np);
+    }
+  if(rn->N_strati_computazionali >= 2)
+    {
+      n_geni += (rn->l2_nd+1)*(rn->l1_np);
+    }
+   if(rn->N_strati_computazionali == 3)
+    {
+      n_geni += (rn->l3_nd+1)*(rn->l3_np);
+    }
+
+   /* Crea la popolazione di n  cromosomi */
+   rele_croma * c = malloc(n*sizeof(rele_croma));
+
+   /*Inizializza ogni cromosoma */
+   for(int i=0;i<n;i++)
+     {
+       c[i].N_geni = n_geni;
+       c[i].gene = malloc(n_geni*sizeof(allele));
+     }
+
+   /*la popolazione è pronta*/
+   return c;
+  
+
+}
+
 rele_rete * rele_Apri(FILE * f)
 {
 
