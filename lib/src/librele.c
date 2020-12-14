@@ -195,11 +195,30 @@ void rele_AG_incrocia(rele_croma genitore_1,
 
 void rele_AG_muta(rele_croma * cromosoma, double p, double x)
 {
-  
+  struct timeval tv;
+  gettimeofday(&tv,NULL);
+  srand(tv.tv_usec);
+
   int n = cromosoma->N_geni;
-  /* scelta del punto di mutazione*/
-  int s = ((double)rand())/((double)(RAND_MAX))*(n-1);
-  
+  for(int i=0; i<cromosoma->N_geni;i++)
+    {
+      /* funzione generatrice uniforme */
+      double s = ((double)rand())/((double)(RAND_MAX));
+
+      /* Muta il gene i-esimo se s<p */
+      if(s<p)
+	{
+	  /* calcola il nuovo valore per il gene */
+
+	  int sgn = -1;
+	  if(((double)rand())/((double)(RAND_MAX))>0.5)
+	    sgn = -1;
+	  
+	  
+	  *(cromosoma->gene+i) += sgn*(((double)rand())/((double)(RAND_MAX)))*(*(cromosoma->gene+i));
+
+	}
+    }
 }
 
 void rele_AG_trascrivi_sinapsi(rele_croma  cromosoma, rele_rete * rn)
@@ -209,10 +228,7 @@ void rele_AG_trascrivi_sinapsi(rele_croma  cromosoma, rele_rete * rn)
   /** RETE A UN SOLO STRATO **/
   if(rn->N_strati_computazionali == 1)
     {
-      
-      //fprintf(stderr,"v_t[0] %lf\n",rn->v_t[0]);
       memcpy(rn->v_t,cromosoma.gene,cromosoma.N_geni*sizeof(allele));
-      //fprintf(stderr,"v_t[0] %lf\n",rn->v_t[0]);
     }
 
 }
