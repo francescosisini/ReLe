@@ -6,6 +6,7 @@ Libreria didattica per la creazione, addestramento e test di reti neurali fino a
 ## Caratteristiche di ReLe
 - **Re**te neura**Le** mulistrato (completamente connessa) in linguaggio C
 - Addestramento con Backpropagation
+- Addestramento con Algoritmi Genetici (per ora solo per reti ad 1 strato)
 - Facile da usare: bastano 3 chiamate per creare, addestare e provare una rete
 - Possibilità di salvare la rete in formato CSV (Tabulazioni al posto delle virgole TSV)
 - Caricare una rete da file con una sola chiamata
