@@ -19,14 +19,20 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 #include <string.h>
+#include <time.h>
+#include <sys/time.h>
 #include "librele.h"
+
+/* Macro neuroni */
 #define MAX_PESO 0.1
 #define MIN_PESO -0.1
+
+/* Macro cromosomi */
+#define SOGLIA_SCORE 0.1 
 
 /**
    INTERFACCIA:
@@ -55,17 +61,160 @@ rele_croma * rele_AG_Crea_cromosomi(rele_rete * modello, int n)
    rele_croma * c = malloc(n*sizeof(rele_croma));
 
    /*Inizializza ogni cromosoma */
+   struct timeval tv;
+   gettimeofday(&tv,NULL);
+   srand(tv.tv_usec);
    for(int i=0;i<n;i++)
      {
        c[i].N_geni = n_geni;
        c[i].gene = malloc(n_geni*sizeof(allele));
+
+       /* Init random degli alleli */
+       for(int k=0;k<n_geni;k++)
+	 c[i].gene[k]= -1+((double)rand())/((double)(RAND_MAX))*2;
      }
 
    /*la popolazione è pronta*/
    return c;
+}
+
+void rele_AG_Libera_cromosomi(rele_croma * c, int n)
+{
+  /* free dello heap */
+  
+}
+void rele_AG_Calcola_idoneita_cromosoma(rele_croma * cromosoma,
+					rele_rete * modello,
+					double * dati,
+					double * classi)
+{
+  rele_rete * rn = modello; //Rinomino per uniformità con codice rele_addestra
+
+  int l1_np = rn->l1_np;
+  int l2_np = rn->l2_np;
+  int l3_np = rn->l3_np;
+  int l1_nd = rn->l1_nd;
+  int l2_nd = rn->l2_nd;
+  int l3_nd = rn->l3_nd;
+
+  /* preparazione degli ingressi e delle label delle classi */
+  rn->v_x0[0] = 1;
+  memcpy(rn->v_x0+1,dati,rn->N_neuroni_sensitivi*sizeof(double));
+  /* Carica il target-output (l'output voluto) in memoria */
+  memcpy(rn->v_d,classi,rn->N_neuroni_afferenti*sizeof(double));
   
 
+  /** RETE A UN SOLO STRATO **/
+  if(rn->N_strati_computazionali == 1)
+    {
+      /* copia i geni nelle sinapsi*/
+      rele_AG_trascrivi_sinapsi(*cromosoma, rn);
+      
+      /* Feed Forward: Input->L1->output to L2 */
+      layer_feed_forward(rn->v_s1,rn->v_y1,rn->v_t,rn->v_x0,l1_np,l1_nd);
+      
+      /* Propagazione inversa dell'errore in L1  (v_t  <- v_y1) */
+      double errore = 0;
+      for(int i=0;i<l1_np;i++)
+	{
+	  errore += pow(rn->v_d[i]- rn->v_y1[i],2);
+	}
+      
+      /* Calcolo ideoneità */
+      cromosoma->idoneita = 1./((1./(double)l1_np)*errore);
+    }
 }
+
+int rele_AG_selezione(rele_croma * cromosomi, int n,int escluso)
+{
+  struct timeval tv;
+  gettimeofday(&tv,NULL);
+  srand(tv.tv_usec);
+  
+  double range = SOGLIA_SCORE;
+  double* score = malloc(n*sizeof(double));
+  for(int i=0; i<n;i++)
+    {
+      /* score random */
+      double s = (1-range)+((double)rand())/((double)(RAND_MAX))*range;
+      score[i] = s*cromosomi[i].idoneita;
+    }
+  
+  int s = 0;
+  double ido_max = 0;
+  for(int i=0; i<n;i++)
+    {
+      /* memorizza l'indice del cromosoma con score massimo */
+      if(score[i]>ido_max && i != escluso)
+	{
+	  ido_max = score[i];
+	  s = i;
+	}
+    }
+  free(score);
+  //printf("Scelto il cromosoma %d\n",s);
+  return s;
+}
+
+void rele_AG_incrocia(rele_croma genitore_1,
+		      rele_croma genitore_2,
+		      rele_croma * figlio_1,
+		      rele_croma * figlio_2)
+{
+  
+  
+  struct timeval tv;
+  gettimeofday(&tv,NULL);
+  srand(tv.tv_usec);
+  int n = genitore_1.N_geni;
+  
+  /* scelta del punto di incrocio */
+  int s = ((double)rand())/((double)(RAND_MAX))*(n-1);
+
+  /*
+    0123456789.... indici gene in cromosoma     
+    cxacvaccxa.... genitore_1
+    byullujkyu.... genitore_2
+    ---^------.... punto di incrocio
+       s=3
+    cxaclujkyu.... figlio_1
+    byluvaccxa.... figlio_2
+   */
+
+  /* Figlio 1 */
+  memcpy(figlio_1->gene,genitore_1.gene,(s+1)*sizeof(allele));
+  memcpy(figlio_1->gene+s+1,genitore_2.gene+s+1,(n-(s+1))*sizeof(allele));
+
+   /* Figlio 2 */
+  memcpy(figlio_2->gene,genitore_2.gene,(s+1)*sizeof(allele));
+  memcpy(figlio_2->gene+s+1,genitore_1.gene+s+1,(n-(s+1))*sizeof(allele));
+}
+
+void rele_AG_muta(rele_croma * cromosoma, double p, double x)
+{
+  
+  int n = cromosoma->N_geni;
+  /* scelta del punto di mutazione*/
+  int s = ((double)rand())/((double)(RAND_MAX))*(n-1);
+  
+}
+
+void rele_AG_trascrivi_sinapsi(rele_croma  cromosoma, rele_rete * rn)
+{
+
+  
+  /** RETE A UN SOLO STRATO **/
+  if(rn->N_strati_computazionali == 1)
+    {
+      
+      //fprintf(stderr,"v_t[0] %lf\n",rn->v_t[0]);
+      memcpy(rn->v_t,cromosoma.gene,cromosoma.N_geni*sizeof(allele));
+      //fprintf(stderr,"v_t[0] %lf\n",rn->v_t[0]);
+    }
+
+}
+
+
 
 rele_rete * rele_Apri(FILE * f)
 {
@@ -609,6 +758,7 @@ rele_rete * rele_Crea_rete(
   
   /* inizializzazione pseudocasuale delle connessioni 
      da -MAX_PESO a + MAX_PESO */
+  srand(time(0));
   for(int i=0;i<(l1_nd+1)*l1_np;i++)
     rn->v_t[i]=2*MAX_PESO*(double)rand()/(double)RAND_MAX-MIN_PESO;
   

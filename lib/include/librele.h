@@ -165,8 +165,6 @@ typedef struct
 {
   int N_geni;
 
-  double score;
-
   double idoneita;
   
   /*Il buffer gene viene creato di dimensione N_geni dalla rele_AG_Crea_cromosomi() */
@@ -182,22 +180,22 @@ rele_croma * rele_AG_Crea_cromosomi(rele_rete * modello, int n);
 void rele_AG_Libera_cromosomi(rele_croma * c, int n);
 
 /*
- * Calcola l'ideoneità di ogni cromosoma della popolazione
+ * Calcola l'ideoneità di 'cromosoma' 
  * e la memorizza nel campo ideoneità del cromosoma stesso
  */
-void rele_AG_Calcola_idoneita(rele_croma * cromosomi,
-			   int numero,
+void rele_AG_Calcola_idoneita_cromosoma(rele_croma * cromosoma,
 			   rele_rete * modello,
 			   double * dati,
 			   double * classi);
 
 /*
  * Calcola uno score random (con funzione generatrice piatta) per 
- * ogni cromosoma.
+ * ognuni degli n cromosomi.
  * Restituisce l'indice del cromosoma che risulta avere 
  * il prodotto score*idoneità più elevato
+ * Esclude dalla selezione l'elemento di indice 'escluso'
  */
-int rele_AG_selezione(rele_croma * cromosomi, int escluso);
+int rele_AG_selezione(rele_croma * cromosomi, int n,int escluso);
 
 /*
  * Valorizza i geni di figlio_1 e _2 con il risultato
@@ -217,7 +215,7 @@ void rele_AG_muta(rele_croma * cromosoma, double p, double x);
  * Valorizza i pesi delle sinapsi della rete r con i valor dei geni 
  * del cromosoma 
  */
-void rele_AG_trascrivi_sinapsi(rele_croma  cromosama, rele_rete * r);
+void rele_AG_trascrivi_sinapsi(rele_croma  cromosoma, rele_rete * r);
 
 
 
