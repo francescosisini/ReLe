@@ -172,6 +172,18 @@ typedef struct
   
 } rele_croma;
 
+/*
+ * Rappresenta un batch di addestramento
+ * costituito da 'numero' di esempli completi
+ * di dati_input e dati_output che rappresentano le classi attese
+ */
+typedef struct
+{
+  int numero;
+  double * dati;
+  double * classi;
+} rele_batch;
+
 /*  
  * Alloca e torna un array di n rele_croma (quindi una popolazione di cromosomi)
  * Valorizza il parametro N_Geni ottenendolo dal modello
@@ -185,8 +197,7 @@ void rele_AG_Libera_cromosomi(rele_croma * c, int n);
  */
 void rele_AG_Calcola_idoneita_cromosoma(rele_croma * cromosoma,
 			   rele_rete * modello,
-			   double * dati,
-			   double * classi);
+			   rele_batch b);
 
 /*
  * Calcola uno score random (con funzione generatrice piatta) per 

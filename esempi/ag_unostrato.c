@@ -6,8 +6,11 @@
 #include <sys/time.h>
 
 #define EQM_ACCETTABILE 0.01
-#define ITERAZIONI 100
-
+#define ITERAZIONI 10
+#define BATCH_SIZE 200
+#define NEUR_SENS 2
+#define NEUR_AFF 1
+#define N_CROMOSOMI 100
 /*
   COMPILAZIONE
   gcc -o ag_uno_strato ag_uno_strato.c -I../lib/include ../lib/librele.o -lm
@@ -15,55 +18,69 @@
 
 int main()
 {
-  rele_rete * r =  rele_Crea_rete(2,1,0,0);
+  rele_rete * r =  rele_Crea_rete(NEUR_SENS,NEUR_AFF,0,0);
 
-  /* crea due popolazioni di 100 cromosomi: genitori e figli */
-  int n_c = 5000;
+  /* crea due popolazioni di n_c cromosomi: genitori e figli */
+  int n_c = N_CROMOSOMI;
   int n_u = n_c/2; //N_c deve essere pari
   rele_croma * pop_g = rele_AG_Crea_cromosomi(r, n_c);
   rele_croma * pop_f = rele_AG_Crea_cromosomi(r, n_c);
+
+  /* dati addestramento */
+  double d[NEUR_SENS*BATCH_SIZE];
+  double c[NEUR_AFF*BATCH_SIZE];
+  double m = 1./10.;
+
+  rele_batch b;
+  b.numero = BATCH_SIZE;
   
-  double d[2];
-  double c[1];
-  
-  int iterazioni = 0;
-  double eqm;
 
   srand(time(0));
   int casi = 0;
-  double id_media = 0;
   int classe_precedente = 0;
-  do
+  for(int i=0;i<ITERAZIONI;i++)
     {
-      //printf("ITERAZIONE %d\n",i);
-      /* Genera le cooridnate di un punto nel piano */
-      d[0]=(double)rand()/(double)RAND_MAX;
-      d[1]=(double)rand()/(double)RAND_MAX;
-      
-      /* il punto è classificato come 0 se giace sotto la bisettrice */
-      if(d[0]<d[1]*2)
-	{
-	  c[0]=0;
-	}
-      else
-	{
-	  c[0]=1;
-	}
-      if(c[0] == classe_precedente)
-	continue;
-      casi++;
-      printf("Casi %d\n",casi);
-      
-      /* calcola l'ideneità di ogni cromosoma */
-      id_media = 0;
-      for(int k=0; k<n_c; k++)
+      do
 	{
 	  
-	  rele_AG_Calcola_idoneita_cromosoma(pop_g+k,r,d,c);
-	  //printf("Cromosoma %d, idoneità %lf\n",k,pop_g[k].idoneita);
-	  id_media += pop_g[k].idoneita;
+	  /* Genera le cooridnate di un punto nel piano */
+	  d[0+NEUR_SENS*casi]=-5+(double)rand()/(double)RAND_MAX*10.;
+	  d[1+NEUR_SENS*casi]=-5+(double)rand()/(double)RAND_MAX*10;
+	  
+	  /* il punto è classificato come 0 se giace sotto la bisettrice */
+	  if(d[0+NEUR_SENS*casi]<d[1+NEUR_SENS*casi]*m)
+	    {
+	      c[0+NEUR_AFF*casi]=0;
+	    }
+	  else
+	    {
+	      c[0+NEUR_AFF*casi]=1;
+	    }
+	  if(c[0+NEUR_AFF*casi] == classe_precedente)
+	    continue;
+	  classe_precedente = c[0+NEUR_AFF*casi];
+	  casi++;
+	  
 	}
-      printf("G Idoneità media %lf\n",id_media/(double)n_c);
+      /*dati e classi printi */
+      while(casi<(b.numero-1));
+      casi = 0;
+
+      /* batch popolato di dati */
+      b.dati = d;
+      b.classi = c;
+      
+      /* Calcola le idoenità relative al batch */
+      double i_media = 0;
+      for(int k=0; k<n_c; k++)
+	{
+	  rele_AG_Calcola_idoneita_cromosoma(pop_g+k,r,b);
+	  i_media += (pop_g+k)->idoneita;
+	  
+	}
+      printf("Idoneità media %lf\n",i_media);
+
+      /* Seleziona i cromosomi */
       for(int k=0;k<n_u;k++)
 	{
 	  /* Genera due figli */
@@ -74,49 +91,41 @@ int main()
 			   pop_f+2*k,
 			   pop_f+2*k+1);
 	}
-
+      
       /* I figli diventano la nuova generazione di genitori */
       memcpy(pop_g,pop_f,n_c*sizeof(rele_croma));
-      for(int k=0; k<n_c; k++)
-      	{
-	  
-	  rele_AG_Calcola_idoneita_cromosoma(pop_g+k,r,d,c);
-	  //printf("Cromosoma %d, idoneità %lf\n",k,pop_g[k].idoneita);
-	  id_media += pop_g[k].idoneita;
-	}
-      printf("F Idoneità media %lf\n",id_media/(double)n_c);
-      
-    }while(casi<150);
+      printf("Iterazione %d\n",i);
+    }
   
   /* trasferimento del cromosoma alle sinapsi */
-  rele_AG_trascrivi_sinapsi(pop_g[0], r);
+  int scelta = rele_AG_selezione(pop_g, n_c,-1);
+  rele_AG_trascrivi_sinapsi(pop_f[scelta], r);
 
   /* Testa la rete */
+  
   casi = 0;
   do
     {
       struct timeval tv;
       gettimeofday(&tv,NULL);
       srand(tv.tv_usec);
-      //printf("ITERAZIONE %d\n",i);
-      /* Genera le cooridnate di un punto nel piano */
-      d[0]=(double)rand()/(double)RAND_MAX;
-      d[1]=(double)rand()/(double)RAND_MAX;
+      
+      
+      d[0]=-5+(double)rand()/(double)RAND_MAX*10.;
+      d[1]=-5+(double)rand()/(double)RAND_MAX*10;
       c[0]=1;
       
-      /* il punto è classificato come 0 se giace sotto la bisettrice */
-      if(d[0]<d[1])
+      
+      if(d[0]<d[1]*m)
 	{
 	  c[0]=0;
 	  casi ++;
 	}
       rele_Classifica(r, d);
-      printf(" %lf vs %lf \n",c[0],r->strato_uscita[0]);
-      /* calcola l'ideneità di ogni cromosoma */
+      printf(" %lf vs %d \n",c[0],r->strato_uscita[0]>0.5);
+      
       
     }while(casi<20);
-  
-  
   
   
   FILE * f= fopen("rete.csv","wt");

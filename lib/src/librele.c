@@ -71,7 +71,7 @@ rele_croma * rele_AG_Crea_cromosomi(rele_rete * modello, int n)
 
        /* Init random degli alleli */
        for(int k=0;k<n_geni;k++)
-	 c[i].gene[k]= -1+((double)rand())/((double)(RAND_MAX))*2;
+	 c[i].gene[k]= -1.+((double)rand())/((double)(RAND_MAX))*2.;
      }
 
    /*la popolazione è pronta*/
@@ -85,8 +85,7 @@ void rele_AG_Libera_cromosomi(rele_croma * c, int n)
 }
 void rele_AG_Calcola_idoneita_cromosoma(rele_croma * cromosoma,
 					rele_rete * modello,
-					double * dati,
-					double * classi)
+					rele_batch b)
 {
   rele_rete * rn = modello; //Rinomino per uniformità con codice rele_addestra
 
@@ -97,31 +96,37 @@ void rele_AG_Calcola_idoneita_cromosoma(rele_croma * cromosoma,
   int l2_nd = rn->l2_nd;
   int l3_nd = rn->l3_nd;
 
-  /* preparazione degli ingressi e delle label delle classi */
-  rn->v_x0[0] = 1;
-  memcpy(rn->v_x0+1,dati,rn->N_neuroni_sensitivi*sizeof(double));
-  /* Carica il target-output (l'output voluto) in memoria */
-  memcpy(rn->v_d,classi,rn->N_neuroni_afferenti*sizeof(double));
-  
-
   /** RETE A UN SOLO STRATO **/
   if(rn->N_strati_computazionali == 1)
     {
-      /* copia i geni nelle sinapsi*/
-      rele_AG_trascrivi_sinapsi(*cromosoma, rn);
       
-      /* Feed Forward: Input->L1->output to L2 */
-      layer_feed_forward(rn->v_s1,rn->v_y1,rn->v_t,rn->v_x0,l1_np,l1_nd);
-      
-      /* Propagazione inversa dell'errore in L1  (v_t  <- v_y1) */
       double errore = 0;
-      for(int i=0;i<l1_np;i++)
+      for(int i=0;i<b.numero;i++)
 	{
-	  errore += pow(rn->v_d[i]- rn->v_y1[i],2);
+	  int i_d = i*rn->N_neuroni_sensitivi;
+	  int i_c = i*rn->N_neuroni_afferenti;
+	  /* preparazione degli ingressi e delle label delle classi */
+	  rn->v_x0[0] = 1;
+	  memcpy(rn->v_x0+1,b.dati+i_d,rn->N_neuroni_sensitivi*sizeof(double));
+	  /* Carica il target-output (l'output voluto) in memoria */
+	  memcpy(rn->v_d,b.classi+i_c,rn->N_neuroni_afferenti*sizeof(double));
+	  
+	  
+	  
+	  /* copia i geni nelle sinapsi*/
+	  rele_AG_trascrivi_sinapsi(*cromosoma, rn);
+	  
+	  /* Feed Forward: Input->L1->output to L2 */
+	  layer_feed_forward(rn->v_s1,rn->v_y1,rn->v_t,rn->v_x0,l1_np,l1_nd);
+	  
+	  /* calcolo errore per l'idoenità */	  
+	  for(int i=0;i<l1_np;i++)
+	    {
+	      errore += pow(rn->v_d[i]- rn->v_y1[i],2);
+	    }
 	}
-      
-      /* Calcolo ideoneità */
-      cromosoma->idoneita = 1./((1./(double)l1_np)*errore);
+      /* Calcolo ideoneità sulla media del numero dati nel batch */
+      cromosoma->idoneita = (1./(double)b.numero)*((double)l1_np)*1./errore;
     }
 }
 
@@ -161,8 +166,6 @@ void rele_AG_incrocia(rele_croma genitore_1,
 		      rele_croma * figlio_1,
 		      rele_croma * figlio_2)
 {
-  
-  
   struct timeval tv;
   gettimeofday(&tv,NULL);
   srand(tv.tv_usec);
