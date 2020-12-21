@@ -1,5 +1,5 @@
 /*______________________________________________
- | rnss_libpercettrone
+ | ReLe1.0
  | 
  | Francesco e Valentina Sisini (c) 2020
  */
@@ -163,7 +163,13 @@ typedef double allele;
  */
 typedef struct
 {
+  /* Numero totale di geni*/
   int N_geni;
+  /* NUmero di geni nei vari strati. La somma deve corrispondere a N_geni */
+  int n_geni_l1;
+  int n_geni_l2;
+  int n_geni_l3;
+  
 
   double idoneita;
   
@@ -203,10 +209,12 @@ void rele_AG_Calcola_idoneita_cromosoma(rele_croma * cromosoma,
  * Calcola uno score random (con funzione generatrice piatta) per 
  * ognuni degli n cromosomi.
  * Restituisce l'indice del cromosoma che risulta avere 
- * il prodotto score*idoneità più elevato
+ * il prodotto score*idoneità più elevatoF
  * Esclude dalla selezione l'elemento di indice 'escluso'
+ * Moltiplica l'idoneità del cromosoma per un random compreso 1 e 1-(soglia_di_score),
+ * per lasciare immutata l'idoneità impostare il parametro a 0
  */
-int rele_AG_selezione(rele_croma * cromosomi, int n,int escluso);
+int rele_AG_selezione(rele_croma * cromosomi, int n,int escluso,double soglia_score);
 
 /*
  * Valorizza i geni di figlio_1 e _2 con il risultato
@@ -227,6 +235,16 @@ void rele_AG_muta(rele_croma * cromosoma, double p, double x);
  * del cromosoma 
  */
 void rele_AG_trascrivi_sinapsi(rele_croma  cromosoma, rele_rete * r);
+
+
+/*
+ * Stampa sul terminale l'istogramma delle idoneità della popolazione di cromosomi
+ * popolazione: array di rele_croma
+ * n: numero cromosomi nella popolazione
+ * label: etichetta per l'istogramma
+ * indice: indice per la collocazione di più diagrammi nello schermo
+ */
+void rele_AG_stampa_popolazione(rele_croma * popolazione, int n, char * label,int indice);
 
 
 

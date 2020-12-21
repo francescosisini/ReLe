@@ -19,6 +19,7 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
+#include <float.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,35 +29,122 @@
 #include "librele.h"
 
 /* Macro neuroni */
-#define MAX_PESO 0.1
-#define MIN_PESO -0.1
+#define MAX_PESO 1.
+#define MIN_PESO -1.
 
-/* Macro cromosomi */
-#define SOGLIA_SCORE 0.1 
 
 /**
    INTERFACCIA:
    SEZIONI FUNZIONI PUBBLICHE
 **/
 
+
+void rele_AG_stampa_popolazione(rele_croma * pop, int n, char * label,int indice)
+{
+  int n_bin = 10;
+  int * istog = malloc(n_bin*sizeof(int));
+  memset(istog,0,n_bin*sizeof(int));
+  /* Individua il massimo e il minimo valore dell'idoneità */
+  double i_min = DBL_MAX;
+  double i_max = 0;
+  for(int i = 0;i<n;i++)
+    {
+      double idn = (pop+i)->idoneita;
+      if(idn>i_max)
+	i_max = idn;
+      if(idn<i_min && idn>0)
+	i_min = idn;
+    }
+  /* calcola la larghezza dei bin */
+  double amp_bin = (i_max-i_min)/(double)(n_bin-1);
+
+  if(amp_bin <= 0)
+    {
+      printf("Errore: max=%lf, min=%lf\n",i_max,i_min);
+      free(istog);
+      return;
+    }
+
+  /* conta il numero di occorrenze per bin */
+  for(int i = 0;i<n;i++)
+    {
+      int b = ((pop+i)->idoneita-i_min)/amp_bin;
+      if(b>=n_bin ||  b<0)
+	{
+	  printf("Errore: b=%d\n",b);
+	  free(istog);
+	  return;
+	}
+      istog[b]++;
+    }
+  
+
+  /* Stampa l'istogramma */
+  int h_max = 10; // rosso
+  int h_mid = 7; // giallo
+  int h_lig = 3;  // verde
+  int riga_base = h_max+5;
+  int colonna_sinistra =5;
+  double conv = (double)h_max/(double)n;
+  /* stampa indoneità minima */
+  printf("\x1b[39;49;m\x1b[%d;%dH%0.1lf\x1b[0m",riga_base+2,colonna_sinistra,i_min);
+  /* stampa indoneità massima */
+  printf("\x1b[39;49;m\x1b[%d;%dH%0.1lf\x1b[0m\t\t\t",riga_base+2,colonna_sinistra+n_bin,i_max);
+
+  //Cicla sulle colonne
+  for(int i=0; i<n_bin;i++)
+    {
+      //Altezza del bin
+      int h = conv*(double)istog[i];
+      if(h>0 && h<1) h = 1;
+
+      //Stampa bin
+      for(int j=0;j<h;j++)
+	{
+	  int rg = riga_base-j;
+	  int col =11;
+	  if(j>h_lig) col = 12;
+	  if(j>h_mid) col = 5;
+	  printf("\x1b[%d;%dH\x1b[48;5;%dm \x1b[0m",rg,colonna_sinistra+i,col);
+	}
+       for(int j=h;j<h_max;j++)
+	{
+	  int rg = riga_base-j;
+	  
+	  printf("\x1b[%d;%dH\x1b[39;49;m \x1b[0m",rg,colonna_sinistra+i);
+	}
+      
+      
+    }
+  
+  free(istog);
+
+}
+
 rele_croma * rele_AG_Crea_cromosomi(rele_rete * modello, int n)
 {
   /* calcola il numero di geni dei cromosomi che è pari al numero di sinapsi */
   int n_geni;
+  int n_l1,n_l2,n_l3;
   rele_rete * rn = modello;//nome più comodo
+  n_l1,n_l2=n_l3=0;
+  n_geni = 0;
   if(rn->N_strati_computazionali >= 1)
     {
-      n_geni = (rn->l1_nd+1)*(rn->l1_np);
+      n_l1 = (rn->l1_nd+1)*(rn->l1_np);
+      n_geni = n_l1;
     }
   if(rn->N_strati_computazionali >= 2)
     {
-      n_geni += (rn->l2_nd+1)*(rn->l1_np);
+      n_l2= (rn->l2_nd+1)*(rn->l2_np);
+      n_geni += n_l2;
     }
    if(rn->N_strati_computazionali == 3)
     {
-      n_geni += (rn->l3_nd+1)*(rn->l3_np);
+      n_l3 = (rn->l3_nd+1)*(rn->l3_np);
+      n_geni += n_l3;
     }
-
+   //printf("g1 = %d, g2=%d\n",n_l1,n_l2);
    /* Crea la popolazione di n  cromosomi */
    rele_croma * c = malloc(n*sizeof(rele_croma));
 
@@ -67,6 +155,9 @@ rele_croma * rele_AG_Crea_cromosomi(rele_rete * modello, int n)
    for(int i=0;i<n;i++)
      {
        c[i].N_geni = n_geni;
+       c[i].n_geni_l1 = n_l1;
+       c[i].n_geni_l2 = n_l2;
+       c[i].n_geni_l3 = n_l3;
        c[i].gene = malloc(n_geni*sizeof(allele));
 
        /* Init random degli alleli */
@@ -74,6 +165,9 @@ rele_croma * rele_AG_Crea_cromosomi(rele_rete * modello, int n)
 	 c[i].gene[k]= -1.+((double)rand())/((double)(RAND_MAX))*2.;
      }
 
+   
+   
+   
    /*la popolazione è pronta*/
    return c;
 }
@@ -101,15 +195,18 @@ void rele_AG_Calcola_idoneita_cromosoma(rele_croma * cromosoma,
     {
       
       double errore = 0;
+      /*
+       * L'idoneità va valutata su un batch di dati, non sul singolo dato
+       */
       for(int i=0;i<b.numero;i++)
 	{
-	  int i_d = i*rn->N_neuroni_sensitivi;
-	  int i_c = i*rn->N_neuroni_afferenti;
+	  int i_d = i*l1_nd;
+	  int i_c = i*l1_np;
 	  /* preparazione degli ingressi e delle label delle classi */
 	  rn->v_x0[0] = 1;
-	  memcpy(rn->v_x0+1,b.dati+i_d,rn->N_neuroni_sensitivi*sizeof(double));
+	  memcpy(rn->v_x0+1,b.dati+i_d,l1_nd*sizeof(double));
 	  /* Carica il target-output (l'output voluto) in memoria */
-	  memcpy(rn->v_d,b.classi+i_c,rn->N_neuroni_afferenti*sizeof(double));
+	  memcpy(rn->v_d,b.classi+i_c,l1_np*sizeof(double));
 	  
 	  
 	  
@@ -126,17 +223,56 @@ void rele_AG_Calcola_idoneita_cromosoma(rele_croma * cromosoma,
 	    }
 	}
       /* Calcolo ideoneità sulla media del numero dati nel batch */
-      cromosoma->idoneita = (1./(double)b.numero)*((double)l1_np)*1./errore;
+      cromosoma->idoneita = ((double)b.numero)*((double)l1_np)*1./errore;
     }
+
+  /** RETE A DUE STRATI **/
+  if(rn->N_strati_computazionali == 2)
+    {
+      
+      double errore = 0;
+      for(int i=0;i<b.numero;i++)
+	{
+	 int i_d = i*l1_nd;
+	 int i_c = i*l2_np;
+	 /* preparazione degli ingressi e delle label delle classi */
+	 rn->v_x0[0] = 1;
+	 memcpy(rn->v_x0+1,b.dati+i_d,l1_nd*sizeof(double));
+	 /* Carica il target-output (l'output voluto) in memoria */
+	 memcpy(rn->v_d,b.classi+i_c,l2_np*sizeof(double));
+	 	  
+	 /* copia i geni nelle sinapsi*/
+	 rele_AG_trascrivi_sinapsi(*cromosoma, rn);
+	 
+	 /* Feed Forward: Input->L1->output to L2 */
+	 layer_feed_forward(rn->v_s1,rn->v_y1,rn->v_t,rn->v_x0,l1_np,l1_nd);
+
+	 /* Mappa y1 in x1 aggiungendo l'elemento x1_0=1*/
+	 layer_map_out_in(rn->v_x1, rn->v_y1,l2_nd);
+	 
+	 /* Feed Forward: L2->output */
+	 layer_feed_forward(rn->v_s2,rn->v_y2,rn->v_u,rn->v_x1,l2_np,l2_nd);
+	 
+	 /* calcolo errore per l'idoenità */	  
+	 for(int i=0;i<l2_np;i++)
+	   {
+	     errore += pow(rn->v_d[i]- rn->v_y2[i],2);
+	   }
+	}
+      /* Calcolo ideoneità sulla media del numero dati nel batch */
+      cromosoma->idoneita = ((double)b.numero)*((double)l2_np)*1./errore;
+    }
+
+  
 }
 
-int rele_AG_selezione(rele_croma * cromosomi, int n,int escluso)
+int rele_AG_selezione(rele_croma * cromosomi, int n,int escluso, double soglia)
 {
   struct timeval tv;
   gettimeofday(&tv,NULL);
   srand(tv.tv_usec);
   
-  double range = SOGLIA_SCORE;
+  double range = soglia;
   double* score = malloc(n*sizeof(double));
   for(int i=0; i<n;i++)
     {
@@ -175,7 +311,7 @@ void rele_AG_incrocia(rele_croma genitore_1,
   int s = ((double)rand())/((double)(RAND_MAX))*(n-1);
 
   /*
-    0123456789.... indici gene in cromosoma     
+    01234356789.... indici gene in cromosoma     
     cxacvaccxa.... genitore_1
     byullujkyu.... genitore_2
     ---^------.... punto di incrocio
@@ -210,7 +346,7 @@ void rele_AG_muta(rele_croma * cromosoma, double p, double x)
 	{
 	  /* calcola il nuovo valore per il gene */
 
-	  int sgn = -1;
+	  int sgn = 1;
 	  if(((double)rand())/((double)(RAND_MAX))>0.5)
 	    sgn = -1;
 	  
@@ -226,10 +362,24 @@ void rele_AG_trascrivi_sinapsi(rele_croma  cromosoma, rele_rete * rn)
 
   
   /** RETE A UN SOLO STRATO **/
-  if(rn->N_strati_computazionali == 1)
+  if(rn->N_strati_computazionali >= 1)
     {
-      memcpy(rn->v_t,cromosoma.gene,cromosoma.N_geni*sizeof(allele));
+      memcpy(rn->v_t,cromosoma.gene,cromosoma.n_geni_l1*sizeof(allele));
     }
+
+   /** RETE A DUE STRATI **/
+  if(rn->N_strati_computazionali >= 2)
+    {
+      memcpy(rn->v_u,cromosoma.gene+cromosoma.n_geni_l1,cromosoma.n_geni_l2*sizeof(allele));
+    }
+
+  /** RETE A TRE STRATI **/
+  if(rn->N_strati_computazionali >= 3)
+    {
+      memcpy(rn->v_v,cromosoma.gene+cromosoma.n_geni_l2,cromosoma.n_geni_l3*sizeof(allele));
+    }
+
+  
 
 }
 
