@@ -83,7 +83,7 @@ void rele_AG_stampa_popolazione(rele_croma * pop, int n, char * label,int indice
   int h_max = 10; // rosso
   int h_mid = 7; // giallo
   int h_lig = 3;  // verde
-  int riga_base = h_max+5;
+  int riga_base = h_max+1;
   int colonna_sinistra =5;
   double conv = (double)h_max/(double)n;
   /* stampa indoneità minima */
@@ -91,11 +91,13 @@ void rele_AG_stampa_popolazione(rele_croma * pop, int n, char * label,int indice
   /* stampa indoneità massima */
   printf("\x1b[39;49;m\x1b[%d;%dH%0.1lf\x1b[0m\t\t\t",riga_base+2,colonna_sinistra+n_bin,i_max);
 
+  printf("\x1b[%d;%dHPopolazione: %s\x1b[0m",riga_base-h_max-1,colonna_sinistra, label);
+  
   //Cicla sulle colonne
   for(int i=0; i<n_bin;i++)
     {
       //Altezza del bin
-      int h = conv*(double)istog[i];
+      double h = conv*(double)istog[i];
       if(h>0 && h<1) h = 1;
 
       //Stampa bin
