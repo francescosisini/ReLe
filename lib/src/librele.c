@@ -41,7 +41,7 @@
 
 void rele_AG_stampa_popolazione(rele_croma * pop, int n, char * label,int indice)
 {
-  int n_bin = 10;
+  int n_bin = 15;
   int * istog = malloc(n_bin*sizeof(int));
   memset(istog,0,n_bin*sizeof(int));
   /* Individua il massimo e il minimo valore dell'idoneità */
@@ -83,7 +83,7 @@ void rele_AG_stampa_popolazione(rele_croma * pop, int n, char * label,int indice
   int h_max = 10; // rosso
   int h_mid = 7; // giallo
   int h_lig = 3;  // verde
-  int riga_base = h_max+1;
+  int riga_base = h_max+5;
   int colonna_sinistra =5;
   double conv = (double)h_max/(double)n;
   /* stampa indoneità minima */
@@ -91,7 +91,14 @@ void rele_AG_stampa_popolazione(rele_croma * pop, int n, char * label,int indice
   /* stampa indoneità massima */
   printf("\x1b[39;49;m\x1b[%d;%dH%0.1lf\x1b[0m\t\t\t",riga_base+2,colonna_sinistra+n_bin,i_max);
 
-  printf("\x1b[%d;%dHPopolazione: %s\x1b[0m",riga_base-h_max-1,colonna_sinistra, label);
+  //printf("\x1b[%d;%dHIstogramma di idoneita'\x1b[0m",riga_base-h_max-4,colonna_sinistra);
+  printf("\x1b[%d;%dHPopolazione: %s\x1b[0m",riga_base-h_max-3,colonna_sinistra, label);
+  printf("\x1b[%d;%dHCromosomi: %d\x1b[0m",riga_base-h_max-2,colonna_sinistra, n);
+  printf("\x1b[%d;%dHGeni: %d (%d,%d,%d)\x1b[0m",
+	 riga_base-h_max-1,colonna_sinistra, pop->N_geni,pop->n_geni_l1,pop->n_geni_l2,pop->n_geni_l3);
+
+  //Nasconde cursore
+  printf("\x1b[?25l");
   
   //Cicla sulle colonne
   for(int i=0; i<n_bin;i++)
@@ -104,10 +111,10 @@ void rele_AG_stampa_popolazione(rele_croma * pop, int n, char * label,int indice
       for(int j=0;j<h;j++)
 	{
 	  int rg = riga_base-j;
-	  int col =11;
+	  int col =10;
 	  if(j>h_lig) col = 12;
-	  if(j>h_mid) col = 5;
-	  printf("\x1b[%d;%dH\x1b[48;5;%dm \x1b[0m",rg,colonna_sinistra+i,col);
+	  if(j>h_mid) col = 9;
+	  printf("\x1b[%d;%dH\x1b[38;5;%dm-\x1b[0m",rg,colonna_sinistra+i,col);
 	}
        for(int j=h;j<h_max;j++)
 	{
@@ -118,6 +125,8 @@ void rele_AG_stampa_popolazione(rele_croma * pop, int n, char * label,int indice
       
       
     }
+  //Mostra cursore
+  printf("\x1b[?25h");
   
   free(istog);
 

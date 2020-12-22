@@ -243,6 +243,9 @@ void rele_AG_trascrivi_sinapsi(rele_croma  cromosoma, rele_rete * r);
  * n: numero cromosomi nella popolazione
  * label: etichetta per l'istogramma
  * indice: indice per la collocazione di più diagrammi nello schermo
+ * numero_bin: il numero di bin dell'istrogramma (tipico 15)
+ * altazza_massima: l'altezza dell'istogramma in corrispondenza di un bin popolato con
+ * l'intera popolazione
  */
 void rele_AG_stampa_popolazione(rele_croma * popolazione, int n, char * label,int indice);
 
