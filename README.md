@@ -1,5 +1,8 @@
 # ReLe
 Libreria didattica per la creazione, addestramento e test di reti neurali fino a tre strati in linguaggio C
+
+Il progetto ReLe punta a realizzare una libreria con diversi algoritmi utili nell'implementazione di logiche AI in progetti di sviluppo reale
+La strategia è di mantenere un'alta leggibilità del codice che insieme a modelli documentati permetta il suo utilizzo modificando il codice in base alle necessità anziché prevedendo tutte le possibili declinazioni in anticipo, in questo modo la dimensione e la leggibilità dovrebbero preservarsi
 #### Sponsor 
 [Introduzione alle reti neurali: con esempi in linguaggio C](https://www.amazon.it/Introduzione-alle-neurali-esempi-linguaggio/dp/1692945319)
 
